@@ -2,7 +2,8 @@ const router = require("express").Router();
 const {
   createPayroll,
   getAllPayroll,
-  getMyPayroll
+  getMyPayroll,
+  getPayrollStats
 } = require("../controllers/payrollController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -18,3 +19,4 @@ router.get("/", authMiddleware, roleMiddleware("admin"), getAllPayroll);
 router.get("/my", authMiddleware, roleMiddleware("employee"), getMyPayroll);
 
 module.exports = router;
+router.get("/stats", authMiddleware, roleMiddleware("admin"), getPayrollStats);

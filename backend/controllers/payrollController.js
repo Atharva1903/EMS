@@ -47,3 +47,7 @@ exports.getMyPayroll = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+exports.getPayrollStats = async (req, res) => {
+  const count = await Payroll.countDocuments();
+  res.json({ totalPayrolls: count });
+};

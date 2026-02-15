@@ -1,12 +1,12 @@
 import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/auth-context";
 
-const Navbar = () => {
+const EmployeeNavbar = () => {
   const { logout } = useContext(AuthContext);
-  
+
   return (
     <div className="navbar">
-      <div className="logo">Employee Management System</div>
+      <span className="logo">EMS Employee</span>
       <button className="logout-btn" onClick={logout}>
         Logout
       </button>
@@ -14,4 +14,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default EmployeeNavbar;

@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
+const userRoutes = require("./routes/userRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -16,18 +18,14 @@ app.get("/", (req, res) => {
   res.send("EMS Backend Running");
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
 app.use("/api/auth", require("./routes/authRoutes"));
-const authMiddleware = require("./middleware/authMiddleware");
-
-app.get("/api/protected", authMiddleware, (req, res) => {
-  res.json({
-    message: "You accessed protected route",
-    user: req.user
-  });
-});
 app.use("/api/employees", require("./routes/employeeRoutes"));
 app.use("/api/leaves", require("./routes/leaveRoutes"));
 app.use("/api/payroll", require("./routes/payrollRoutes"));
+app.use("/api/attendance", require("./routes/attendanceRoutes"));
+app.use("/api/departments", require("./routes/departmentRoutes"));
+app.use("/api/users", userRoutes);
+
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
+});
