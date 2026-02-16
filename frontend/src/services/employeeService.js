@@ -1,18 +1,31 @@
 import api from "./api";
 
-export const getEmployees = async () => {
-  const res = await api.get("/api/employees");
-  return res.data;
+const employeeService = {
+  getEmployees: async () => {
+    const res = await api.get("/api/employees");
+    return res.data;
+  },
+
+  deleteEmployee: (id) => {
+    return api.delete(`/api/employees/${id}`);
+  },
+
+  createEmployee: (data) => {
+    return api.post("/api/employees", data);
+  },
+
+  updateEmployee: async (id, employeeData) => {
+    return await api.put(`/api/employees/${id}`, employeeData);
+  },
+
+  // Profile Methods
+  fetchProfile: async () => {
+    return await api.get("/api/employees/profile");
+  },
+
+  updateProfile: async (data) => {
+    return await api.put("/api/employees/profile", data);
+  }
 };
 
-export const deleteEmployee = (id) => {
-  return api.delete(`/api/employees/${id}`);
-};
-
-export const createEmployee = (data) => {
-  return api.post("/api/employees", data);
-};
-
-export const updateEmployee = (id, data) => {
-  return api.put(`/api/employees/${id}`, data);
-};
+export default employeeService;

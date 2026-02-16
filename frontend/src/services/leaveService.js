@@ -12,4 +12,8 @@ export const updateLeaveStatus = (id, data) => {
   return api.put(`/api/leaves/${id}`, data);
 };
 
+export const getMyLeaves = () => {
+  return api.get("/api/leaves/my");
+};
+
 export const getLeaves = getAllLeaves;

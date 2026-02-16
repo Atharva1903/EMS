@@ -9,7 +9,20 @@ const employeeSchema = new mongoose.Schema({
   department: String,
   designation: String,
   salary: Number,
-  joiningDate: Date
+  joiningDate: Date,
+  dob: Date,
+  mobile: String,
+  address: String,
+  employmentType: {
+    type: String,
+    enum: ["Intern", "Full-time"],
+    default: "Full-time"
+  },
+  status: {
+    type: String,
+    enum: ["Active", "On Leave"],
+    default: "Active"
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Employee", employeeSchema);

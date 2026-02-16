@@ -1,17 +1,156 @@
-import { useContext } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../../context/auth-context";
 
 const EmployeeNavbar = () => {
-  const { logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef();
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="navbar">
-      <span className="logo">EMS Employee</span>
-      <button className="logout-btn" onClick={logout}>
-        Logout
-      </button>
+    <div style={navbarStyle}>
+      <div style={logoStyle}>EMS Employee</div>
+
+      <div style={profileWrapper} ref={dropdownRef}>
+        <div style={profileBox} onClick={() => setOpen(!open)}>
+          <div style={avatarStyle}>
+            {user?.name?.charAt(0)?.toUpperCase() || "E"}
+          </div>
+          <span style={usernameStyle}>
+            {user?.name || "Employee"}
+          </span>
+          <span style={arrowStyle}>{open ? "▲" : "▼"}</span>
+        </div>
+
+        {open && (
+          <div style={dropdownStyle}>
+            <div style={dropdownItem}>
+              👤 {user?.email || "employee@example.com"}
+            </div>
+
+            <div style={roleBadge}>
+              Role: {user?.role || "Employee"}
+            </div>
+
+            <div style={divider}></div>
+
+            <div
+              style={logoutItem}
+              onClick={logout}
+            >
+              🚪 Logout
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
+};
+
+/* ---------------- STYLES ---------------- */
+
+const navbarStyle = {
+  height: "70px",
+  background: "linear-gradient(135deg, #2563eb, #1e40af)",
+  color: "white",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "0 30px",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+};
+
+const logoStyle = {
+  fontSize: "1.3rem",
+  fontWeight: "700",
+  letterSpacing: "0.5px"
+};
+
+const profileWrapper = {
+  position: "relative"
+};
+
+const profileBox = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  cursor: "pointer",
+  padding: "8px 14px",
+  borderRadius: "12px",
+  transition: "0.3s ease",
+};
+
+const avatarStyle = {
+  width: "36px",
+  height: "36px",
+  borderRadius: "50%",
+  background: "#facc15",
+  color: "#1e293b",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: "600",
+  fontSize: "0.95rem"
+};
+
+const usernameStyle = {
+  fontWeight: "500"
+};
+
+const arrowStyle = {
+  fontSize: "0.7rem"
+};
+
+const dropdownStyle = {
+  position: "absolute",
+  right: 0,
+  top: "55px",
+  background: "white",
+  color: "#1e293b",
+  borderRadius: "14px",
+  width: "240px",
+  boxShadow: "0 15px 40px rgba(0,0,0,0.15)",
+  overflow: "hidden",
+  paddingBottom: "5px"
+};
+
+const dropdownItem = {
+  padding: "14px 18px",
+  fontSize: "0.9rem"
+};
+
+const roleBadge = {
+  margin: "0 18px 10px",
+  background: "#e0f2fe",
+  color: "#0369a1",
+  fontSize: "0.75rem",
+  padding: "4px 8px",
+  borderRadius: "8px",
+  width: "fit-content"
+};
+
+const logoutItem = {
+  padding: "14px 18px",
+  fontSize: "0.9rem",
+  cursor: "pointer",
+  color: "#ef4444",
+  fontWeight: "500"
+};
+
+const divider = {
+  height: "1px",
+  background: "#e2e8f0",
+  margin: "8px 0"
 };
 
 export default EmployeeNavbar;

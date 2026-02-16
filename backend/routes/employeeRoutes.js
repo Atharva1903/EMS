@@ -5,15 +5,21 @@ const {
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
-  getEmployeeCount   // 👈 ADD THIS
+  getEmployeeCount,
+  getEmployeeProfile,     // 👈 ADD THIS
+  updateEmployeeProfile   // 👈 ADD THIS
 } = require("../controllers/employeeController");
-
-
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
+// ============ PROFILE ROUTES (Any Logged In Employee) ============
+router.get("/profile", authMiddleware, getEmployeeProfile);
+router.put("/profile", authMiddleware, updateEmployeeProfile);
 
+
+// ============ ADMIN ROUTES ============
+router.get("/stats/count", authMiddleware, roleMiddleware("admin"), getEmployeeCount);
 
 router.post(
   "/",
@@ -22,18 +28,17 @@ router.post(
   createEmployee
 );
 
-module.exports = router;
 router.get(
   "/",
   authMiddleware,
   roleMiddleware("admin"),
   getAllEmployees
 );
-router.get("/", authMiddleware, roleMiddleware("admin"), getAllEmployees);
 
 router.get("/:id", authMiddleware, roleMiddleware("admin"), getEmployeeById);
 
 router.put("/:id", authMiddleware, roleMiddleware("admin"), updateEmployee);
 
 router.delete("/:id", authMiddleware, roleMiddleware("admin"), deleteEmployee);
-router.get("/stats/count", authMiddleware, roleMiddleware("admin"), getEmployeeCount);
+
+module.exports = router;

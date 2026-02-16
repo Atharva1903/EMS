@@ -2,17 +2,16 @@ const router = require("express").Router();
 const {
   markToday,
   getMyAttendance,
-  getAllAttendance
+  getAllAttendance,
+  getAttendanceStats
 } = require("../controllers/attendanceController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
-router.post("/mark", authMiddleware, roleMiddleware("employee"), markToday);
-
-router.get("/my", authMiddleware, roleMiddleware("employee"), getMyAttendance);
-
+router.post("/", authMiddleware, markToday);
+router.get("/my", authMiddleware, getMyAttendance);
 router.get("/", authMiddleware, roleMiddleware("admin"), getAllAttendance);
+router.get("/stats", authMiddleware, roleMiddleware("admin"), getAttendanceStats); // Add this
 
 module.exports = router;
-

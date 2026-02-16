@@ -11,7 +11,6 @@ const AdminSidebar = () => {
       <Link to="/admin/leaves">Leaves</Link>
       <Link to="/admin/payroll">Payroll</Link>
       <Link to="/admin/attendance">Attendance</Link>
-      <Link to="/admin/reports">Reports</Link>
     </div>
   );
 };

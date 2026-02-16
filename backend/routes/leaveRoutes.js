@@ -2,20 +2,21 @@ const router = require("express").Router();
 const {
   applyLeave,
   getAllLeaves,
-  updateLeaveStatus,getLeaveStats
+  updateLeaveStatus,
+  getLeaveStats,
+  getMyLeaves
 } = require("../controllers/leaveController");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 
-// Employee applies leave
+// Employee routes
 router.post("/", authMiddleware, applyLeave);
+router.get("/my", authMiddleware, getMyLeaves);
 
-// Admin views all leaves
+// Admin routes
+router.get("/stats", authMiddleware, roleMiddleware("admin"), getLeaveStats);
 router.get("/", authMiddleware, roleMiddleware("admin"), getAllLeaves);
-
-// Admin approves/rejects leave
 router.put("/:id", authMiddleware, roleMiddleware("admin"), updateLeaveStatus);
 
 module.exports = router;
-router.get("/stats", authMiddleware, roleMiddleware("admin"), getLeaveStats);

@@ -3,11 +3,13 @@ const Input = ({
   placeholder,
   value,
   onChange,
+  name,
   required = false
 }) => {
   return (
     <input
       type={type}
+      name={name}
       placeholder={placeholder}
       value={value}
       required={required}
