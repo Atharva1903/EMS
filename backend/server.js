@@ -24,6 +24,7 @@ app.use("/api/leaves", require("./routes/leaveRoutes"));
 app.use("/api/payroll", require("./routes/payrollRoutes"));
 app.use("/api/attendance", require("./routes/attendanceRoutes"));
 app.use("/api/departments", require("./routes/departmentRoutes"));
+app.use('/api/reports', require('./routes/reportRoutes'));
 app.use("/api/users", userRoutes);
 
 app.listen(5000, () => {

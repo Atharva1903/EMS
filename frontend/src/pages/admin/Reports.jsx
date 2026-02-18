@@ -12,7 +12,9 @@ const Reports = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareDescription, setShareDescription] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   const [letterData, setLetterData] = useState({
     companyName: "PIXAFLIP TECHNOLOGIES PVT LTD",
@@ -43,55 +45,55 @@ const Reports = () => {
     input: { width: "100%", padding: "12px", marginBottom: "16px", border: "1px solid #cbd5e0", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box" },
     previewWrapper: { backgroundColor: "#cbd5e0", padding: "40px", borderRadius: "24px", display: "flex", justifyContent: "center", overflowX: "auto" },
     a4Paper: { width: "210mm", minHeight: "297mm", padding: "25mm 20mm", backgroundColor: "white", boxShadow: "0 25px 50px -12px rgb(0 0 0 / 0.25)", boxSizing: "border-box", lineHeight: "1.7", color: "#1a1a1a", fontFamily: "'Times New Roman', Times, serif" },
-    
-   // --- Updated Button Styles in your styles object ---
-    buttonGroup: { 
-      display: "grid", 
-      gridTemplateColumns: "1fr", 
-      gap: "10px", 
+
+    // --- Updated Button Styles in your styles object ---
+    buttonGroup: {
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      gap: "10px",
       marginTop: "10px",
     },
-    btnPdf: { 
-      width: "100%", 
-      padding: "12px", 
-      backgroundColor: "#ef4444", 
-      color: "white", 
-      border: "none", 
-      borderRadius: "8px", 
-      fontWeight: "600", 
+    btnPdf: {
+      width: "100%",
+      padding: "12px",
+      backgroundColor: "#ef4444",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: "600",
       cursor: "pointer",
       display: "flex",       // Added for icon alignment
       alignItems: "center",   // Centers icon and text vertically
       justifyContent: "center", // Centers content horizontally
       gap: "8px"             // Space between icon and text
     },
-    btnWord: { 
-      width: "100%", 
-      padding: "12px", 
-      backgroundColor: "#2563eb", 
-      color: "white", 
-      border: "none", 
-      borderRadius: "8px", 
-      fontWeight: "600", 
+    btnWord: {
+      width: "100%",
+      padding: "12px",
+      backgroundColor: "#2563eb",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: "600",
       cursor: "pointer",
       display: "flex",       // Added for icon alignment
-      alignItems: "center", 
-      justifyContent: "center", 
-      gap: "8px" 
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px"
     },
-    btnShare: { 
-      width: "100%", 
-      padding: "12px", 
-      backgroundColor: "#10b981", 
-      color: "white", 
-      border: "none", 
-      borderRadius: "8px", 
-      fontWeight: "600", 
+    btnShare: {
+      width: "100%",
+      padding: "12px",
+      backgroundColor: "#10b981",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      fontWeight: "600",
       cursor: "pointer",
       display: "flex",       // Added for icon alignment
-      alignItems: "center", 
-      justifyContent: "center", 
-      gap: "8px" 
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px"
     },
   };
 
@@ -252,8 +254,60 @@ const Reports = () => {
   };
 
   // 3. SHARE LOGIC (Placeholder)
-  const handleShare = () => {
-    alert("Share functionality coming soon!");
+  const handleShareInitiation = () => {
+    const confirmStart = window.confirm("Are you ready to share this letter with the employee?");
+    if (confirmStart) {
+      setShowShareModal(true);
+    }
+  };
+
+  const handleFinalSend = async () => {
+    const confirmSend = window.confirm("Are you sure you want to send this email now? This action cannot be undone.");
+    if (!confirmSend) return;
+
+    setIsSending(true);
+
+    try {
+      const element = letterRef.current;
+      if (!element) throw new Error("Letter element not found");
+
+      // Generate PDF
+      const canvas = await html2canvas(element, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+      // Convert PDF to Blob
+      const pdfBlob = pdf.output('blob');
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append("file", pdfBlob, `Experience_Letter_${selectedEmployee.userId?.fullName || "Employee"}.pdf`);
+      // Use userId._id if available (User model ID), fallback to employee._id (Employee model ID)
+      // Based on typical schema, we want the User ID if possible to link to User model
+      formData.append("employeeId", selectedEmployee.userId?._id || selectedEmployee._id);
+      formData.append("description", shareDescription);
+      formData.append("title", "Experience Letter");
+      // Add recipient email if available in the user object
+      if (selectedEmployee.userId?.email) {
+        formData.append("recipientEmail", selectedEmployee.userId.email);
+      }
+      formData.append("reportType", "Experience Letter");
+
+      // Call API
+      await employeeService.shareReport(formData);
+
+      alert(`Success! The letter has been shared with ${selectedEmployee.userId?.fullName}.`);
+      setShowShareModal(false);
+      setShareDescription("");
+    } catch (error) {
+      console.error("Error sharing report:", error);
+      alert("Failed to share the letter. Please try again.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (loading) return <AdminLayout><div>Loading...</div></AdminLayout>;
@@ -302,19 +356,65 @@ const Reports = () => {
                   <button style={styles.btnPdf} onClick={downloadPDF}>
                     <FaFilePdf size={18} /> Download PDF
                   </button>
-                  
+
                   <button style={styles.btnWord} onClick={downloadWord}>
                     <FaFileWord size={18} /> Download Word
                   </button>
-                  
-                  <button style={styles.btnShare} onClick={handleShare}>
+
+                  <button style={styles.btnShare} onClick={handleShareInitiation}>
                     <FaShareAlt size={16} /> Share Letter
                   </button>
                 </div>
               </div>
             )}
           </div>
+          {/* SHARE MODAL */}
+          {showShareModal && (
+            <div style={{
+              position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.5)", display: "flex",
+              alignItems: "center", justifyContent: "center", zIndex: 1000
+            }}>
+              <div style={{
+                backgroundColor: "white", padding: "30px", borderRadius: "16px",
+                width: "450px", boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+              }}>
+                <h3 style={{ marginTop: 0 }}>Share Report</h3>
+                <p style={{ color: "#64748b", fontSize: "14px" }}>
+                  Enter a description or note for this record (like a commit message).
+                </p>
 
+                <textarea
+                  style={{
+                    ...styles.input, height: "120px", marginTop: "10px",
+                    padding: "12px", border: "1px solid #e2e8f0"
+                  }}
+                  placeholder="e.g., Final experience letter sent after completion of notice period..."
+                  value={shareDescription}
+                  onChange={(e) => setShareDescription(e.target.value)}
+                />
+
+                <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                  <button
+                    style={{ ...styles.btnShare, flex: 2, opacity: isSending ? 0.7 : 1 }}
+                    onClick={handleFinalSend}
+                    disabled={isSending}
+                  >
+                    {isSending ? "Sending..." : "Confirm & Send Email"}
+                  </button>
+                  <button
+                    style={{
+                      flex: 1, backgroundColor: "#f1f5f9", border: "none",
+                      borderRadius: "8px", cursor: "pointer", fontWeight: "600"
+                    }}
+                    onClick={() => setShowShareModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* RIGHT PANEL - PREVIEW */}
           <div style={styles.previewWrapper}>
             {selectedEmployee ? (

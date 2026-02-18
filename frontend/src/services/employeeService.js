@@ -25,6 +25,14 @@ const employeeService = {
 
   updateProfile: async (data) => {
     return await api.put("/api/employees/profile", data);
+  },
+
+  shareReport: async (formData) => {
+    return await api.post("/api/reports/share", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   }
 };
 
